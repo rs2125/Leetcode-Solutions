@@ -1,0 +1,59 @@
+#define pi pair<int,int>
+#define ppi pair<pair<int,int>,int>
+class Solution {
+public:
+    
+    vector<int>dp;
+    //dp[i] defines max profit you can get by either taking (j=1) or not taking (j=0) element
+    
+    static bool cmp(const ppi &a, const ppi &b)
+    {
+        if(a.first.first==b.first.first)
+            return a.first.second<b.first.second;
+        return a.first.first<b.first.first;
+    }
+    
+    int calculate_next_pos(vector<int>&startTime, int endtime)
+    {
+        auto it = lower_bound(startTime.begin(),startTime.end(),endtime);
+        if(it!=startTime.end())
+        return int(it-startTime.begin());
+        return startTime.size();
+    }
+    
+    int rec(int i, vector<ppi>&arr ,vector<int>&startTime)
+    {
+        if(i>=arr.size())
+            return 0;
+        if(dp[i]!=-1)
+            return dp[i];
+        
+        int nextpos = calculate_next_pos(startTime,arr[i].first.second);
+        //calculates the next starting time>=present ending time
+        
+        //if you choose to take ith element into score
+        int include = arr[i].second + rec(nextpos,arr,startTime);
+        
+        //if you dont include the ith element
+        int exclude = rec(i+1,arr,startTime);
+        
+        return dp[i] = max(include,exclude);
+    }
+    
+    int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {
+        int n = startTime.size();
+        vector<ppi>arr;
+        for(int i=0;i<n;i++)
+            arr.push_back({{startTime[i],endTime[i]}, profit[i]});
+        dp.resize(n,-1);
+        sort(arr.begin(),arr.end(),cmp);
+        
+        for(int i=0;i<n;i++)
+            startTime[i] = arr[i].first.first;
+        
+        int ans = profit[0];
+        
+        ans = max(ans,rec(0,arr,startTime));
+        return ans;
+    }
+};
