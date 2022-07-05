@@ -1,0 +1,58 @@
+#define ll long long int
+class Solution {
+public:
+    
+    vector<ll>dp;
+    //dp[i] denotes the maximum profit you can get by either picking up or not picking up the ith customer
+    
+    static bool cmp(const vector<int>&v1, const vector<int>&v2)
+    {
+        if(v1[0]==v2[0])
+            return v1[1]<v2[1];
+        return v1[0]<v2[0];
+    }
+    
+    ll calculate_next(vector<vector<int>>&arr, ll endtime)
+    {
+        ll left = 0;
+        ll right = arr.size()-1;
+        ll ans = arr.size();
+        
+        while(left<=right)
+        {
+            ll mid = (left+right)/2;
+            
+            if(arr[mid][0]<endtime)
+                left = mid + 1;
+            else
+            {
+                ans = mid;
+                right = mid - 1;
+            }
+        }
+        
+        return ans;
+    }
+    
+    ll rec(ll i, vector<vector<int>>&rides)
+    {
+        if(i>=rides.size())
+            return 0;
+        if(dp[i]!=-1)
+            return dp[i];
+        
+        ll next_index = calculate_next(rides,rides[i][1]);
+        
+        ll include = rides[i][1] - rides[i][0] + rides[i][2] + rec(next_index,rides);
+        ll exclude = rec(i+1,rides);
+        
+        return dp[i] = max(include,exclude);
+    }
+    
+    long long maxTaxiEarnings(int n, vector<vector<int>>& rides) {
+        ll N = rides.size();
+        sort(rides.begin(),rides.end(),cmp);
+        dp.resize(N,-1);
+        return rec(0,rides);
+    }
+};
