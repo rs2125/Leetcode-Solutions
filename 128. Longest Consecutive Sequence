@@ -1,0 +1,33 @@
+class Solution {
+public:
+    /**Create an empty hash.
+    1) Insert all array elements to hash.
+    2) Do following for every element arr[i]
+    3) Check if this element is the starting point of a subsequence. To check this, simply look for arr[i] – 1 in the hash, if not found, then this is the first element a subsequence.
+    4) If this element is the first element, then count the number of elements in the consecutive starting with this element. Iterate from arr[i] + 1 till the last element that can be found.
+    5) If the count is more than the previous longest subsequence found, then update this.**/
+    
+    int longestConsecutive(vector<int>& nums) {
+        int n = nums.size();
+        if(n==0)
+            return 0;
+        int ans = 1;
+        
+        unordered_set<int>s;
+        for(int i=0;i<n;i++)
+            s.insert(nums[i]);
+        
+        for(int i=0;i<n;i++)
+        {
+            if(s.find(nums[i]-1)==s.end()) //this elemnt can start a new sequence
+            {
+                int j = nums[i];
+                while(s.find(j)!=s.end())
+                    j++;
+                ans = max(ans,j-nums[i]);
+            }
+        }
+        
+        return ans;
+    }
+};
